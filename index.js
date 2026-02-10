@@ -1,9 +1,13 @@
 import express from "express";
+import cors from "cors";
 import { WebSocketServer } from "ws";
 import { CONFIG } from "./config.js";
 import { startRound, getCurrentRound } from "./phases.js";
 
 const app = express();
+
+// ✅ Allow requests from ANY origin
+app.use(cors());
 
 // REST endpoint for current round details
 app.get("/api/round", (req, res) => {
