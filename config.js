@@ -4,5 +4,4 @@ dotenv.config();
 export const CONFIG = {
   REDIS_URL: process.env.REDIS_URL,
   PORT: process.env.PORT || 5000,
-  JWT_SECRET: process.env.JWT_SECRET,
 };

@@ -2,36 +2,44 @@ import redis from "./redis.js";
 
 let currentPhase = "STOP";
 let timer = null;
+let remaining = null;
+let roundId = 0;
 
-export function getCurrentPhase() {
-  return currentPhase;
+export function getCurrentRound() {
+  return {
+    roundId,
+    phase: currentPhase,
+    remaining,
+    timestamp: Date.now(),
+  };
 }
 
-export function startBetting(duration = 11) {
+export function startRound(duration = 11) {
+  roundId++;
   currentPhase = "BETTING";
-  let remaining = duration;
-  broadcastPhase();
+  remaining = duration;
+  broadcastRound();
 
   timer = setInterval(() => {
     remaining--;
-    redis.publish("game-timer", JSON.stringify({ remaining }));
+    redis.set("current-timer", remaining);
 
     if (remaining <= 0) {
-      stopBetting();
+      endRound();
+    } else {
+      broadcastRound();
     }
   }, 1000);
 }
 
-export function stopBetting() {
+export function endRound() {
   currentPhase = "STOP";
-  broadcastPhase();
+  remaining = null;
+  broadcastRound();
   clearInterval(timer);
 }
 
-function broadcastPhase() {
-  const payload = {
-    phase: currentPhase,
-    timestamp: Date.now(),
-  };
-  redis.publish("game-phase", JSON.stringify(payload));
+function broadcastRound() {
+  const payload = getCurrentRound();
+  redis.publish("game-round", JSON.stringify(payload));
 }
