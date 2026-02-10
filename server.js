@@ -4,6 +4,7 @@ import { CONFIG } from "./config.js";
 import { startBetting } from "./phases.js";
 
 const app = express();
+
 const server = app.listen(CONFIG.PORT, () => {
   console.log(`Server running on port ${CONFIG.PORT}`);
 });
@@ -16,5 +17,5 @@ wss.on("connection", (ws) => {
 
 // Trigger betting cycle every 20s
 setInterval(() => {
-  startBetting(11); // matches screenshot timer
+  startBetting(11); // 11-second betting window
 }, 20000);

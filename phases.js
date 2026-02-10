@@ -3,19 +3,29 @@ import redis from "./redis.js";
 let currentPhase = "STOP";
 let timer = null;
 
+export function getCurrentPhase() {
+  return currentPhase;
+}
+
 export function startBetting(duration = 11) {
   currentPhase = "BETTING";
+  let remaining = duration;
   broadcastPhase();
 
-  timer = setTimeout(() => {
-    stopBetting();
-  }, duration * 1000);
+  timer = setInterval(() => {
+    remaining--;
+    redis.publish("game-timer", JSON.stringify({ remaining }));
+
+    if (remaining <= 0) {
+      stopBetting();
+    }
+  }, 1000);
 }
 
 export function stopBetting() {
   currentPhase = "STOP";
   broadcastPhase();
-  clearTimeout(timer);
+  clearInterval(timer);
 }
 
 function broadcastPhase() {
